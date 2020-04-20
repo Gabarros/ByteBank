@@ -13,10 +13,16 @@ class BytebankApp extends StatelessWidget {
   }
 }
 
-class TransferencesList extends StatelessWidget {
+class TransferencesList extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return TransferencesListState();
+  }
+}
 
+class TransferencesListState extends State<TransferencesList> {
   final List<Transference> _transferences = List();
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,29 +32,28 @@ class TransferencesList extends StatelessWidget {
         ),
       ),
       body: ListView.builder(
-        itemCount: ,
-        itemBuilder: ,
+        itemCount: _transferences.length,
+        itemBuilder: (context, index) {
+          final transference = _transferences[index];
+          return TransferenceItem(transference);
+        },
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-         final Future<Transference> future = Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) {
-              return FormTransference();
-            }));
+          final Future<Transference> future =
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return FormTransference();
+          }));
 
-            future.then((transference){
-              _transferences.add(transference);
-              debugPrint('retornou');
-              debugPrint('$transference');
-            });
+          future.then((transference) {
+            _transferences.add(transference);
+          });
         },
       ),
     );
   }
 }
-
 
 class TransferenceItem extends StatelessWidget {
   final Transference _transference;
@@ -71,15 +76,13 @@ class Transference {
   final double value;
   final int accountNumber;
 
-  Transference(this.value, this.accountNumber);
+  Transference(this.accountNumber, this.value);
 
   @override
   String toString() {
-    return 'Transferência{valor: $value, numeroConta: $accountNumber';
+    return 'Transferência{value: $value, accountNumber: $accountNumber';
   }
 }
-
-
 
 class FormTransference extends StatelessWidget {
   final TextEditingController _controllerAccountNumber =
@@ -141,7 +144,7 @@ class FormTransference extends StatelessWidget {
     final double value = double.tryParse(_controllerValue.text);
 
     if (number != null && value != null) {
-      final transference = Transference(value, number);
+      final transference = Transference(number, value);
       Navigator.pop(context, transference);
     }
   }
