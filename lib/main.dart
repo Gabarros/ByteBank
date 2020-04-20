@@ -7,80 +7,16 @@ class BytebankApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: FormTransference(),
-      ),
-    );
-  }
-}
-
-class FormTransference extends StatelessWidget {
-  final TextEditingController _controllerAccountNumber =
-      TextEditingController();
-  final TextEditingController _controllerValue = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Criando Transferências',
-        ),
-      ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(left: 40, right: 40, top: 20),
-            child: TextField(
-              controller: _controllerAccountNumber,
-              style: TextStyle(fontSize: 24.0),
-              decoration: InputDecoration(
-                labelText: 'Número da Conta',
-                hintText: '000000',
-              ),
-              keyboardType: TextInputType.number,
-              maxLength: 6,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 40, right: 40),
-            child: TextField(
-              controller: _controllerValue,
-              style: TextStyle(fontSize: 24.0),
-              decoration: InputDecoration(
-                icon: Icon(Icons.monetization_on),
-                labelText: 'Valor',
-                hintText: '00,00',
-              ),
-              keyboardType: TextInputType.number,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 30),
-            child: RaisedButton(
-              child: Text('Confirmar'),
-              onPressed: () {
-                final int number = int.tryParse(_controllerAccountNumber.text);
-                final double value = double.tryParse(_controllerValue.text);
-
-                if (number != null && value != null) {
-                  final transference = Transference(value, number);
-                  debugPrint(transference.toString());
-
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Text(transference.toString()),
-                  ));
-                }
-              },
-              textTheme: ButtonTextTheme.primary,
-            ),
-          )
-        ],
+        body: TransferencesList(),
       ),
     );
   }
 }
 
 class TransferencesList extends StatelessWidget {
+
+  final List<Transference> _transferences = List();
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,19 +25,30 @@ class TransferencesList extends StatelessWidget {
           'Transferências',
         ),
       ),
-      body: Column(
-        children: <Widget>[
-          TransferenceItem(Transference(300, 123455)),
-          TransferenceItem(Transference(500, 1387713)),
-          TransferenceItem(Transference(800, 145678)),
-        ],
+      body: ListView.builder(
+        itemCount: ,
+        itemBuilder: ,
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
+        onPressed: () {
+         final Future<Transference> future = Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) {
+              return FormTransference();
+            }));
+
+            future.then((transference){
+              _transferences.add(transference);
+              debugPrint('retornou');
+              debugPrint('$transference');
+            });
+        },
       ),
     );
   }
 }
+
 
 class TransferenceItem extends StatelessWidget {
   final Transference _transference;
@@ -129,5 +76,99 @@ class Transference {
   @override
   String toString() {
     return 'Transferência{valor: $value, numeroConta: $accountNumber';
+  }
+}
+
+
+
+class FormTransference extends StatelessWidget {
+  final TextEditingController _controllerAccountNumber =
+      TextEditingController();
+  final TextEditingController _controllerValue = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Criando Transferências',
+        ),
+      ),
+      body: Column(
+        children: <Widget>[
+          Editor(
+            controller: _controllerAccountNumber,
+            label: 'Número da Conta',
+            hint: '000000',
+          ),
+          Editor(
+              controller: _controllerValue,
+              label: 'Valor',
+              hint: '00.00',
+              icon: Icons.monetization_on),
+          Padding(
+            padding: const EdgeInsets.only(top: 30),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                RaisedButton(
+                  child: Text('Confirmar'),
+                  onPressed: () => _createTransference(context),
+                  textTheme: ButtonTextTheme.primary,
+                ),
+                RaisedButton(
+                  child: Text('Voltar'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) {
+                        return TransferencesList();
+                      }),
+                    );
+                  },
+                  textTheme: ButtonTextTheme.primary,
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  void _createTransference(BuildContext context) {
+    final int number = int.tryParse(_controllerAccountNumber.text);
+    final double value = double.tryParse(_controllerValue.text);
+
+    if (number != null && value != null) {
+      final transference = Transference(value, number);
+      Navigator.pop(context, transference);
+    }
+  }
+}
+
+class Editor extends StatelessWidget {
+  final TextEditingController controller;
+  final String label, hint;
+  final IconData icon;
+
+  Editor({this.controller, this.label, this.hint, this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 32, right: 40, top: 20),
+      child: TextField(
+        controller: controller,
+        style: TextStyle(fontSize: 24.0),
+        decoration: InputDecoration(
+          icon: icon != null ? Icon(icon) : null,
+          labelText: label,
+          hintText: hint,
+        ),
+        keyboardType: TextInputType.number,
+        maxLength: 6,
+      ),
+    );
   }
 }
