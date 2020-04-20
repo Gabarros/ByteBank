@@ -6,9 +6,7 @@ class BytebankApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        body: TransferencesList(),
-      ),
+      home: TransferencesList(),
     );
   }
 }
@@ -47,7 +45,13 @@ class TransferencesListState extends State<TransferencesList> {
           }));
 
           future.then((transference) {
-            _transferences.add(transference);
+            if (transference != null &&
+                transference.value != 0 &&
+                transference.accountNumber != 0) {
+              setState(() {
+                _transferences.add(transference);
+              });
+            }
           });
         },
       ),
@@ -84,7 +88,14 @@ class Transference {
   }
 }
 
-class FormTransference extends StatelessWidget {
+class FormTransference extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return FormTransferenceState();
+  }
+}
+
+class FormTransferenceState extends State<FormTransference> {
   final TextEditingController _controllerAccountNumber =
       TextEditingController();
   final TextEditingController _controllerValue = TextEditingController();
@@ -97,44 +108,46 @@ class FormTransference extends StatelessWidget {
           'Criando Transferências',
         ),
       ),
-      body: Column(
-        children: <Widget>[
-          Editor(
-            controller: _controllerAccountNumber,
-            label: 'Número da Conta',
-            hint: '000000',
-          ),
-          Editor(
-              controller: _controllerValue,
-              label: 'Valor',
-              hint: '00.00',
-              icon: Icons.monetization_on),
-          Padding(
-            padding: const EdgeInsets.only(top: 30),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                RaisedButton(
-                  child: Text('Confirmar'),
-                  onPressed: () => _createTransference(context),
-                  textTheme: ButtonTextTheme.primary,
-                ),
-                RaisedButton(
-                  child: Text('Voltar'),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) {
-                        return TransferencesList();
-                      }),
-                    );
-                  },
-                  textTheme: ButtonTextTheme.primary,
-                )
-              ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Editor(
+              controller: _controllerAccountNumber,
+              label: 'Número da Conta',
+              hint: '000000',
             ),
-          )
-        ],
+            Editor(
+                controller: _controllerValue,
+                label: 'Valor',
+                hint: '00.00',
+                icon: Icons.monetization_on),
+            Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  RaisedButton(
+                    child: Text('Confirmar'),
+                    onPressed: () => _createTransference(context),
+                    textTheme: ButtonTextTheme.primary,
+                  ),
+                  RaisedButton(
+                    child: Text('Voltar'),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) {
+                          return TransferencesList();
+                        }),
+                      );
+                    },
+                    textTheme: ButtonTextTheme.primary,
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
